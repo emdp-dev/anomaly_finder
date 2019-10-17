@@ -16,9 +16,9 @@ args = vars(ap.parse_args())
 # load image and convert to grayscale
 image = cv2.imread(args["image"])
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-blurred = cv2.GaussianBlur(gray, (3, 3), 0)
+blurred = cv2.GaussianBlur(gray, (7, 7), 0)
 # binary
-(t, binary) = cv2.threshold(blurred, 200, 255, cv2.THRESH_BINARY)
+(t, binary) = cv2.threshold(blurred, 200, 255, cv2.THRESH_BINARY_INV)
 
 # # dilate
 # dilated = binary.copy()
@@ -32,8 +32,8 @@ clone = image.copy()
 cv2.drawContours(clone, cnts, -1, (255, 0, 0), 2)
 print("Found {} contours".format(len(cnts)))
 
-cv2.imshow("blurred", blurred)
-cv2.imshow("binary", binary)
+# cv2.imshow("blurred", blurred)
+cv2.imshow("Contour", clone)
 cv2.waitKey(0)
 
 
