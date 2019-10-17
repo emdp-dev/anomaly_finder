@@ -36,7 +36,7 @@ args = vars(ap.parse_args())
 image = cv2.imread(args["image"])
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-blurred = cv2.GaussianBlur(gray, (3, 3), 0)
+blurred = cv2.GaussianBlur(gray, (9, 9), 0)
 edgeImg = detect_edge(blurred)
 
 
@@ -61,17 +61,19 @@ for i in range(0, 3):
 cnts = cv2.findContours(dilated, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 cnts = imutils.grab_contours(cnts)
 # cv2.drawContours(image, cnts, -1, (255, 0, 0), 2)
+print("1st contour: {}".format(cnts[0].shape))
 
 mask_boundaries = []
 
 for (i, c) in enumerate(cnts):
 	# print("Drawing contour #{}".format(i + 1))
-	# cv2.drawContours(image, [c], -1, (255, 0, 0), 2)
+	cv2.drawContours(image, [c], -1, (255, 0, 0), 2)
+	# print("3rd contour: {}".format(c[0]))
 	area = cv2.contourArea(c)
 	if area > 300000.0 and area < 500000.0:
-		cv2.drawContours(image, [c], -1, (255, 0, 0), 2)
+		# cv2.drawContours(image, [c], -1, (255, 0, 0), 2)
 		# print("Drawing contour #{}".format(i + 1))
-		print("Area {}".format(area))
+		# print("Area {}".format(area))
 		mask_boundaries.append(c)
 		# print(c.dtype)
 
@@ -83,8 +85,25 @@ mask = np.zeros(image.shape[:2], dtype="uint8")
 cv2.fillPoly(mask, [mask_boundaries[0]], 255)
 masked = cv2.bitwise_and(image, image, mask=mask)
 
-cv2.imshow("Masked", masked)
+# cv2.imshow("Masked", masked)
+# cv2.waitKey(0)
+
+# cv2.imwrite("NDVI.jpg", masked)
+
+# now we have our POI, get to work
+gray_masked = cv2.cvtColor(masked, cv2.COLOR_BGR2GRAY)
+blurred_masked = cv2.GaussianBlur(gray_masked, (3, 3), 0)
+
+cont = cv2.findContours(blurred_masked, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+cont = imutils.grab_contours(cont)
+print("2nd contour: {}".format(cont[0].shape))
+
+cv2.drawContours(image, cont, -1, (255, 0, 0), 2)
+
+cv2.imshow("Window", masked)
 cv2.waitKey(0)
+cv2.imwrite("result.jpg", masked)
+
 
 # significant_contour = get_significant_contours(edgeImg)
 # print("Found {} contours".format(len(significant_contour)))
